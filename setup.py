@@ -9,7 +9,7 @@ with open("README.rst") as fh:
 
 setuptools.setup(
     name='airly',
-    version='0.0.1',
+    version='0.0.2-a1',
     description=
     'Python wrapper for getting air quality data from Airly sensors.',
     long_description=long_description,
