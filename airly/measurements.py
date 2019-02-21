@@ -1,13 +1,14 @@
-import json
+import re
+from datetime import datetime
 from enum import Enum
 import logging
 from airly import _private
-from airly._private import _EmptyFormat
+from airly._private import _EmptyFormat, _DictToObj
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class Measurement:
+class Measurement(_DictToObj):
     """Measurement for specific time period returned from Airly API"""
 
     # Following values are extracted from this API URL:
@@ -32,45 +33,46 @@ class Measurement:
         O3,
     ]
 
+    def _parse_list(self, key):
+        result = []
+        list_to_parse = self.get(key)
+        if list_to_parse is not None:
+            for e in list_to_parse:
+                result.append(_DictToObj(e))
+        return result
+
     def __init__(self, data: dict):
+        super().__init__(data)
+
+        # Parse date-times
+        self.fromDateTime = self._parse_datetime(data.get('fromDateTime'))
+        self.tillDateTime = self._parse_datetime(data.get('tillDateTime'))
+
+        # Make popular measurements available directly,
+        # i.e. instead of x.values['PM1'] make it accessible as x.pm1
         self.values = {
             x['name']: x['value'] for x in
             data['values']} if 'values' in data else {}
+        for t in Measurement.MEASUREMENTS_TYPES:
+            self.__setattr__(t.lower(),
+                             self.values[t] if t in self.values else None)
 
-    def get_value(self, name):
-        return self.values[name] if name in self.values else None
+        self.indexes = self._parse_list('indexes')
+        self.standards = self._parse_list('standards')
 
-    @property
-    def pm1(self):
-        return self.get_value(self.PM1)
+    @staticmethod
+    def _parse_datetime(x):
+        if x is None:
+            return None
+        # full timestamp with milliseconds
+        match = re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z", x)
+        if match:
+            return datetime.strptime(x, "%Y-%m-%dT%H:%M:%S.%fZ")
 
-    @property
-    def pm25(self):
-        return self.get_value(self.PM25)
-
-    @property
-    def pm10(self):
-        return self.get_value(self.PM10)
-
-    @property
-    def temperature(self):
-        return self.get_value(self.TEMPERATURE)
-
-    @property
-    def humidity(self):
-        return self.get_value(self.HUMIDITY)
-
-    @property
-    def pressure(self):
-        return self.get_value(self.PRESSURE)
-
-    @property
-    def no2(self):
-        return self.get_value(self.NO2)
-
-    @property
-    def o3(self):
-        return self.get_value(self.O3)
+        # timestamp missing milliseconds
+        match = re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", x)
+        if match:
+            return datetime.strptime(x, "%Y-%m-%dT%H:%M:%SZ")
 
 
 class MeasurementsSession:
@@ -113,7 +115,6 @@ class MeasurementsSession:
     async def update(self):
         """Get measurements."""
         data = await self.requests_handler.get(self.request_path)
-        _LOGGER.debug(json.dumps(data))
         self.current = Measurement(data['current'])
         self.history = [Measurement(x) for x in data['history']]
         self.forecast = [Measurement(x) for x in data['forecast']]

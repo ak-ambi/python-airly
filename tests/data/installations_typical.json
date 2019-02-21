@@ -1,0 +1,24 @@
+{
+  "id": 204,
+  "location": {
+    "latitude": 50.062006,
+    "longitude": 19.940984
+  },
+  "address": {
+    "country": "Poland",
+    "city": "Kraków",
+    "street": "Mikołajska",
+    "number": "4B",
+    "displayAddress1": "Kraków",
+    "displayAddress2": "Mikołajska"
+  },
+  "elevation": 220.38,
+  "airly": true,
+  "sponsor": {
+    "id": 7,
+    "name": "KrakówOddycha",
+    "description": "Sensor Airly w ramach akcji",
+    "logo": "https://cdn.airly.eu/logo/KrakówOddycha.jpg",
+    "link": "https://przykladowy_link_do_strony_sponsora.pl"
+  }
+}

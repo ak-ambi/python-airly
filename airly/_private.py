@@ -1,3 +1,5 @@
+import json
+
 import aiohttp
 import logging
 
@@ -35,4 +37,13 @@ class _RequestsHandler:
                                 response.status)
                 raise AirlyError(response.status, await response.text())
 
-            return await response.json()
+            data = await response.json()
+            _LOGGER.debug(json.dumps(data))
+            return data
+
+class _DictToObj(dict):
+    def __getattr__(self, name):
+        if name in self:
+            return self[name]
+        else:
+            raise AttributeError("No such attribute: " + name)
