@@ -1,7 +1,7 @@
 import setuptools
 
 REQUIRES = [
-    'aiohttp==3.5.4',
+    'aiohttp>=3.5.4',
 ]
 
 with open("README.rst") as fh:
