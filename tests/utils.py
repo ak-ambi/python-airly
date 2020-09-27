@@ -2,9 +2,15 @@ import asyncio
 
 
 def run_coroutine_synchronously(coroutine):
-    loop = asyncio.new_event_loop()
-    result = loop.run_until_complete(coroutine)
-    loop.close()
+    old = asyncio.get_event_loop()
+    if not old.is_closed():
+        old.close()
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        result = loop.run_until_complete(coroutine)
+    finally:
+        loop.close()
     return result
 
 

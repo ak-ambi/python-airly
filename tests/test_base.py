@@ -1,5 +1,6 @@
 import json
-from unittest import TestCase, mock
+from unittest import TestCase
+from unittest.mock import patch
 
 from airly._private import _RequestsHandler
 from utils import wrap_to_future
@@ -7,8 +8,9 @@ from utils import wrap_to_future
 
 class AirlyTestCase(TestCase):
 
-    def setUp(self):
-        self._rh_mock = mock.create_autospec(_RequestsHandler)
+    @patch('airly._private._RequestsHandler')
+    def setUp(self, rh_mock):
+        self._rh_mock = rh_mock
 
     def set_up_next_response_from_file(self, file_id):
         file_name = "data/{}.json".format(file_id)
@@ -53,3 +55,4 @@ class AirlyTestCase(TestCase):
     @staticmethod
     def _get_parts_wo_qs(parts):
         return parts[:3] + parts[5:]
+
