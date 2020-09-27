@@ -17,7 +17,7 @@ setuptools.setup(
     license='MIT',
     packages=['airly'],
     install_requires=REQUIRES,
-    python_requires='>=3.5.3',
+    python_requires='>=3.6.0',
     author='Paweł Stankowski',
     author_email='ak_ambi@op.pl',
     classifiers=[
