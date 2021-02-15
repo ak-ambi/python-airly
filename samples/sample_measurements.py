@@ -49,7 +49,7 @@ async def main():
             current = client.current
             print("Measurements %s:" % description)
             for m in Measurement.MEASUREMENTS_TYPES:
-                print("%s: %s" % (m, current.get_value(m)))
+                print("%s: %s" % (m, current.values.get(m)))
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())
