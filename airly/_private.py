@@ -27,11 +27,20 @@ class _RequestsHandler:
             self.headers['Accept-Language'] = language
         self.base_url = base_url
         self.session = session
+        self.requests_per_day = None
+        self.requests_remaining = None
 
     async def get(self, request_path):
         url = self.base_url + request_path
         _LOGGER.debug("Sending request: " + url)
         async with self.session.get(url, headers=self.headers) as response:
+            # The values for the X-RateLimit-Limit-day and X-RateLimit-Remaining-day
+            # headers should be returned for HTTP status code 200 and 429, but sometimes
+            # they are missing for unknown reasons.
+            if "X-RateLimit-Limit-day" in response.headers:
+                self.requests_per_day = int(response.headers["X-RateLimit-Limit-day"])
+            if "X-RateLimit-Remaining-day" in response.headers:
+                self.requests_remaining = int(response.headers["X-RateLimit-Remaining-day"])
             if response.status != 200:
                 _LOGGER.warning("Invalid response from Airly API: %s",
                                 response.status)

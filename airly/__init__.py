@@ -48,3 +48,23 @@ class Airly:
         return MeasurementsSession(
             self._rh, MeasurementsSession.Mode.POINT,
             latitude=latitude, longitude=longitude)
+
+    @property
+    def requests_remaining(self):
+        """
+        Returns the remaining number of requests on a given day as Int or None if value
+        is unavailable. The counter is reset each day at midnight UTC.
+        """
+
+        return self._rh.requests_remaining
+
+    @property
+    def requests_per_day(self):
+        """
+        Returns the allowed number of requests per day as Int or None if value is
+        unavailable.
+        According to the API documentation, the default rate limit per API key is 100
+        requests per day. But for old API keys (pre-2020), the rate limit is 1000
+        requests per day.
+        """
+        return self._rh.requests_per_day
